@@ -1,0 +1,41 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <!--
+        max                 最大进度
+        progress            初始时的进度
+        startAngle             进度从圆环的哪个角度开始走
+        centreColor         圆环内部的填充色
+        ringColor             圆环的颜色
+        ringProgressColor   圆环进度的颜色
+        ringWidth             圆环宽度
+        textColor             中心文字的颜色
+        textSize             中心文字的大小
+        textIsDisplayable     中心文字是否显示
+        style = 0/1          进度的风格，实心或者空心
+     -->
+    <declare-styleable name="RoundProgressBar">
+        <attr name="max" format="integer"/>
+        <attr name="progress" format="integer"/>
+        <attr name="startAngle" format="integer"/>
+        <attr name="ringColor" format="color"/>
+        <attr name="ringProgressColor" format="color"/>
+        <attr name="ringWidth" format="dimension"/>
+        <attr name="centerColor" format="color"/>
+        <attr name="textColor" format="color"/>
+        <attr name="textSize" format="dimension"/>
+        <attr name="textIsDisplayable" format="boolean"/>
+        <attr name="style">
+            <enum name="STROKE" value="0"/>
+            <enum name="FILL"   value="1"/>
+        </attr>
+    </declare-styleable>
+
+</resources>
