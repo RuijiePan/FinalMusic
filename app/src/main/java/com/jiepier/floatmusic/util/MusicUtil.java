@@ -32,4 +32,33 @@ public class MusicUtil {
         return dir;
     }
 
+    public static String getLrcDir() {
+        String lrcDir = getAppLocalDir() + "lrc" + File.separator;
+        return mkdir(lrcDir);
+    }
+
+    public static String getAppLocalDir() {
+        String dir = null;
+
+        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_UNMOUNTED)) {
+            dir = Environment.getExternalStorageDirectory() + File.separator
+                    + "liteplayer" + File.separator;
+        } else {
+            dir = App.sContext.getFilesDir() + File.separator + "liteplayer" + File.separator;
+        }
+
+        return mkdir(dir);
+    }
+
+    public static String mkdir(String dir) {
+        File f = new File(dir);
+        if (!f.exists()) {
+            for (int i = 0; i < 5; i++) {
+                if(f.mkdirs()) return dir;
+            }
+            return null;
+        }
+
+        return dir;
+    }
 }

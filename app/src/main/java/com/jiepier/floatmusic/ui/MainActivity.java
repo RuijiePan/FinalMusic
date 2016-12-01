@@ -1,10 +1,10 @@
 package com.jiepier.floatmusic.ui;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -15,19 +15,23 @@ import com.jiepier.floatmusic.R;
 import com.jiepier.floatmusic.adapter.MusicAdapter;
 import com.jiepier.floatmusic.base.App;
 import com.jiepier.floatmusic.base.BaseActivity;
+import com.jiepier.floatmusic.bean.ClickEvent;
 import com.jiepier.floatmusic.bean.Music;
 import com.jiepier.floatmusic.service.FxService;
 import com.jiepier.floatmusic.util.MusicUtil;
 import com.jiepier.floatmusic.util.RecyclerViewDivider;
 
+import org.greenrobot.eventbus.EventBus;
+
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
  * Created by JiePier on 16/11/12.
  */
 
-public class MainActivity extends BaseActivity{
+public class MainActivity extends BaseActivity {
 
     @BindView(R.id.iv_play)
     ImageView ivPlay;
@@ -43,7 +47,10 @@ public class MainActivity extends BaseActivity{
     RelativeLayout activityMain;
     @BindView(R.id.rl_controller)
     RelativeLayout rlController;
+    @BindView(R.id.iv_play_icon)
+    ImageView ivPlayIcon;
 
+    private int mPosition;
     private boolean isPause;
     private MusicAdapter mMusicAdapter;
 
@@ -62,18 +69,64 @@ public class MainActivity extends BaseActivity{
         recyclerView.addItemDecoration(new RecyclerViewDivider(
                 this, RecyclerViewDivider.VERTICAL_LIST));
 
+        rlController.setVisibility(View.GONE);
         mMusicAdapter.setOnItemClickLisetener(
                 new MusicAdapter.OnItemClickLisetener() {
                     @Override
                     public void onItemClick(int position) {
+
                         mPlayService.play(position);
                         startService(new Intent(App.sContext, FxService.class));
                         BindFxService();
+                        mPosition = position;
+                        playProgress.setMax(MusicUtil.sMusicList.get(mPosition).getDuration());
+
+                        if (mFxService != null) {
+                            mFxService.setmListener(new FxService.FloatingViewClickListener() {
+                                @Override
+                                public void OnClick() {
+                                    if (mPlayService.isPlaying()) {
+                                        mPlayService.pause();
+                                        EventBus.getDefault().post(new ClickEvent(true));
+                                    } else {
+                                        mPlayService.resume();
+                                        EventBus.getDefault().post(new ClickEvent(false));
+                                    }
+                                }
+
+                                @Override
+                                public void onLongClick() {
+                                    mPlayService.pause();
+                                    unBindFxService();
+                                }
+                            });
+                            Intent intent = new Intent(App.sContext, MusicActivity.class);
+                            intent.putExtra("position", mPosition);
+                            startActivity(intent);
+                        }
                     }
                 });
-        Log.w("haha","test");
+
+        playProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                int progress = seekBar.getProgress();
+                mPlayService.seek(progress);
+            }
+        });
 
     }
+
 
     @Override
     protected boolean isApplyStatusBarTranslucency() {
@@ -89,31 +142,35 @@ public class MainActivity extends BaseActivity{
     public void onPublish(int percent) {
         if (isPause)
             return;
-        playProgress.setProgress(percent);
+        playProgress.setProgress(percent*MusicUtil.sMusicList.get(mPlayService.getPlayingPosition()).getDuration()/100);
 
-        if (mFxService!=null){
+        if (mFxService != null) {
             mFxService.setRotateAngle(percent);
 
-                mFxService.setmListener(new FxService.FloatingViewClickListener() {
-                    @Override
-                    public void OnClick() {
-                        if (mPlayService.isPlaying()) {
-                            mPlayService.pause();
-                        } else {
-                            mPlayService.resume();
-                        }
-                    }
-
-                    @Override
-                    public void onLongClick() {
+            mFxService.setmListener(new FxService.FloatingViewClickListener() {
+                @Override
+                public void OnClick() {
+                    if (mPlayService.isPlaying()) {
                         mPlayService.pause();
-                        unBindFxService();
-                        //stopService(new Intent(App.sContext,FxService.class));
-                        //Toast.makeText(App.sContext,"long",Toast.LENGTH_SHORT).show();
+                        EventBus.getDefault().post(new ClickEvent(true));
+                    } else {
+                        mPlayService.resume();
+                        EventBus.getDefault().post(new ClickEvent(false));
                     }
-                });
+                }
 
+                @Override
+                public void onLongClick() {
+                    mPlayService.pause();
+                    unBindFxService();
+                    //stopService(new Intent(App.sContext,FxService.class));
+                    //Toast.makeText(App.sContext,"long",Toast.LENGTH_SHORT).show();
+                }
+            });
 
+            Intent intent = new Intent(App.sContext, MusicActivity.class);
+            intent.putExtra("position", mPosition);
+            startActivity(intent);
         }
 
     }
@@ -150,17 +207,19 @@ public class MainActivity extends BaseActivity{
         isPause = true;
     }
 
-    @OnClick({R.id.iv_play_icon, R.id.iv_pre, R.id.iv_play, R.id.iv_next})
+    @OnClick({R.id.iv_pre, R.id.iv_play, R.id.iv_next, R.id.iv_play_icon})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_play_icon:
+                //Intent intent = new Intent(App.sContext,MusicActivity)
+                startActivity(new Intent(App.sContext, MusicActivity.class));
                 break;
             case R.id.iv_pre:
-                if (MusicUtil.sMusicList.size()!=0)
-                mPlayService.pre();
+                if (MusicUtil.sMusicList.size() != 0)
+                    mPlayService.pre();
                 break;
             case R.id.iv_play:
-                if (MusicUtil.sMusicList.size()!=0) {
+                if (MusicUtil.sMusicList.size() != 0) {
                     if (mPlayService.isPlaying()) {
                         mPlayService.pause();
                         isPause = true;
@@ -173,8 +232,8 @@ public class MainActivity extends BaseActivity{
                 }
                 break;
             case R.id.iv_next:
-                if (MusicUtil.sMusicList.size()!=0)
-                getPlayService().next();
+                if (MusicUtil.sMusicList.size() != 0)
+                    getPlayService().next();
                 break;
         }
     }

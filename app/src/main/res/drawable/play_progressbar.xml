@@ -5,6 +5,6 @@
         <color android:color="@android:color/transparent" />
     </item>
     <item android:id="@+android:id/progress">
-        <clip android:drawable="@drawable/play_activity_progressbar_green_" />
+        <clip android:drawable="@drawable/play_activity_progressbar_" />
     </item>
 </layer-list>

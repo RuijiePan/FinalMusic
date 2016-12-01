@@ -16,6 +16,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.jiepier.floatmusic.R;
@@ -206,7 +207,9 @@ public class PlayService extends Service implements MediaPlayer.OnCompletionList
             while (true){
                 if (mMediaPlayer != null && mMediaPlayer.isPlaying() &&
                         mListener != null){
-                    EventBus.getDefault().post(new PercentEvent(mMediaPlayer.getCurrentPosition()*100/ MusicUtil.sMusicList.get(mPlayingPosition).getDuration()));
+                    int percent = mMediaPlayer.getCurrentPosition()*100/ MusicUtil.sMusicList.get(mPlayingPosition).getDuration();
+                    percent = percent == 0?1:percent;
+                    EventBus.getDefault().post(new PercentEvent(percent));
                     mListener.onPublish(mMediaPlayer.getCurrentPosition());
 
                 }
