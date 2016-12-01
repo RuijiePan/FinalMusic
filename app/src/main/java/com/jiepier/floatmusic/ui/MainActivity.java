@@ -1,7 +1,16 @@
 package com.jiepier.floatmusic.ui;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jiepier.floatmusic.R;
 import com.jiepier.floatmusic.adapter.MusicAdapter;
@@ -18,6 +28,7 @@ import com.jiepier.floatmusic.base.BaseActivity;
 import com.jiepier.floatmusic.bean.ClickEvent;
 import com.jiepier.floatmusic.bean.Music;
 import com.jiepier.floatmusic.service.FxService;
+import com.jiepier.floatmusic.service.PlayService;
 import com.jiepier.floatmusic.util.MusicUtil;
 import com.jiepier.floatmusic.util.RecyclerViewDivider;
 
@@ -53,6 +64,8 @@ public class MainActivity extends BaseActivity {
     private int mPosition;
     private boolean isPause;
     private MusicAdapter mMusicAdapter;
+    public static final int WINDOW_REQUEST_CODE = 200;
+    private static final int REQUEST_CODE = 1;
 
     @Override
     public int initContentView() {
@@ -236,6 +249,21 @@ public class MainActivity extends BaseActivity {
                     getPlayService().next();
                 break;
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == WINDOW_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted.
+
+            } else {
+                // User refused to grant permission.
+                Toast.makeText(this,"请给予创建浮窗权限，否则app没法用啊",Toast.LENGTH_LONG).show();
+            }
+        }
+
     }
 
 }
