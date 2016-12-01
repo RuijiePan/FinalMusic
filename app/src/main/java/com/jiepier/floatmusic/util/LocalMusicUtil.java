@@ -70,6 +70,7 @@ public class LocalMusicUtil {
             music.setSize(cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)));
             music.setAlbum(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)));
             music.setImage(getAlbumImage(cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID))));
+            music.setDuration(music.getDuration()==0?1:music.getDuration());
             musicList.add(music);
         }
         cursor.close();

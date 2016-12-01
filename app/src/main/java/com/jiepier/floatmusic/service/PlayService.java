@@ -207,8 +207,12 @@ public class PlayService extends Service implements MediaPlayer.OnCompletionList
             while (true){
                 if (mMediaPlayer != null && mMediaPlayer.isPlaying() &&
                         mListener != null){
-                    int percent = mMediaPlayer.getCurrentPosition()*100/ MusicUtil.sMusicList.get(mPlayingPosition).getDuration();
-                    percent = percent == 0?1:percent;
+                    int percent;
+                    if (MusicUtil.sMusicList.get(mPlayingPosition).getDuration()!=0) {
+                        percent = mMediaPlayer.getCurrentPosition() * 100 / MusicUtil.sMusicList.get(mPlayingPosition).getDuration();
+                    }else {
+                        percent = 1;
+                    }
                     EventBus.getDefault().post(new PercentEvent(percent));
                     mListener.onPublish(mMediaPlayer.getCurrentPosition());
 
