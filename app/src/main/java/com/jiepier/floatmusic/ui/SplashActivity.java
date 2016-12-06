@@ -93,7 +93,7 @@ public class SplashActivity extends AppCompatActivity {
 		if (requestCode == OVERLAY_PERMISSION_REQ_CODE) {
 			if (!Settings.canDrawOverlays(this)) {
 				// SYSTEM_ALERT_WINDOW permission not granted...
-				Toast.makeText(this, "给权限啊，大哥", Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, "给权限啊，大佬。。。", Toast.LENGTH_SHORT).show();
 			} else {
 				//Toast.makeText(this, "Permission Allowed", Toast.LENGTH_SHORT).show();
 				startService(new Intent(this,PlayService.class));
