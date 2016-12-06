@@ -21,6 +21,7 @@ import com.jiepier.floatmusic.R;
 import com.jiepier.floatmusic.base.App;
 import com.jiepier.floatmusic.base.BaseActivity;
 import com.jiepier.floatmusic.bean.ClickEvent;
+import com.jiepier.floatmusic.bean.ListenerEvent;
 import com.jiepier.floatmusic.bean.Music;
 import com.jiepier.floatmusic.util.ImageTools;
 import com.jiepier.floatmusic.util.MusicIconLoader;
@@ -31,9 +32,6 @@ import com.jiepier.floatmusic.widget.CDView;
 import com.jiepier.floatmusic.widget.LrcView;
 import com.jiepier.floatmusic.widget.PagerIndicator;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 
@@ -61,7 +59,7 @@ public class MusicActivity extends BaseActivity implements View.OnClickListener 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
+        //EventBus.getDefault().register(this);
     }
 
     @Override
@@ -343,14 +341,4 @@ public class MusicActivity extends BaseActivity implements View.OnClickListener 
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        EventBus.getDefault().unregister(this);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(ClickEvent event) {
-        onPlay(mPlayService.getPlayingPosition());
-    };
 }

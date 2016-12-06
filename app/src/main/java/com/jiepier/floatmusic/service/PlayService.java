@@ -28,7 +28,6 @@ import com.jiepier.floatmusic.util.MusicIconLoader;
 import com.jiepier.floatmusic.util.MusicUtil;
 import com.jiepier.floatmusic.util.SpUtils;
 
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,6 +52,7 @@ public class PlayService extends Service implements MediaPlayer.OnCompletionList
     public static final int NEXT = 3;
     public static final int EXIT = 4;
     public static final int CANCLE = 5;
+    private Intent intent = new Intent("com.jiepier.floatmusic.RECEVER");
 
     // 单线程池
     private ExecutorService mProgressUpdatedListener = Executors
@@ -213,10 +213,13 @@ public class PlayService extends Service implements MediaPlayer.OnCompletionList
                     }else {
                         percent = 1;
                     }
-                    EventBus.getDefault().post(new PercentEvent(percent));
+                    intent.putExtra("progress", percent);
+                    sendBroadcast(intent);
+                    //EventBus.getDefault().post(new PercentEvent(percent));
                     mListener.onPublish(mMediaPlayer.getCurrentPosition());
 
                 }
+
                 /*
 			 * SystemClock.sleep(millis) is a utility function very similar
 			 * to Thread.sleep(millis), but it ignores InterruptedException.

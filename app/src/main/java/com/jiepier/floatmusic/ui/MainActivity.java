@@ -14,6 +14,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -26,13 +27,12 @@ import com.jiepier.floatmusic.adapter.MusicAdapter;
 import com.jiepier.floatmusic.base.App;
 import com.jiepier.floatmusic.base.BaseActivity;
 import com.jiepier.floatmusic.bean.ClickEvent;
+import com.jiepier.floatmusic.bean.ListenerEvent;
 import com.jiepier.floatmusic.bean.Music;
 import com.jiepier.floatmusic.service.FxService;
 import com.jiepier.floatmusic.service.PlayService;
 import com.jiepier.floatmusic.util.MusicUtil;
 import com.jiepier.floatmusic.util.RecyclerViewDivider;
-
-import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -82,7 +82,8 @@ public class MainActivity extends BaseActivity {
         recyclerView.addItemDecoration(new RecyclerViewDivider(
                 this, RecyclerViewDivider.VERTICAL_LIST));
 
-        rlController.setVisibility(View.GONE);
+        //rlController.setVisibility(View.GONE);
+
         mMusicAdapter.setOnItemClickLisetener(
                 new MusicAdapter.OnItemClickLisetener() {
                     @Override
@@ -91,10 +92,10 @@ public class MainActivity extends BaseActivity {
                         mPlayService.play(position);
                         startService(new Intent(App.sContext, FxService.class));
                         BindFxService();
-                        mPosition = position;
-                        playProgress.setMax(MusicUtil.sMusicList.get(mPosition).getDuration());
+                        //mPosition = position;
+                        playProgress.setMax(MusicUtil.sMusicList.get(position).getDuration());
 
-                        if (mFxService != null) {
+                        /*if (mFxService != null) {
                             mFxService.setmListener(new FxService.FloatingViewClickListener() {
                                 @Override
                                 public void OnClick() {
@@ -116,7 +117,7 @@ public class MainActivity extends BaseActivity {
                             Intent intent = new Intent(App.sContext, MusicActivity.class);
                             intent.putExtra("position", mPosition);
                             startActivity(intent);
-                        }
+                        }*/
                     }
                 });
 
@@ -153,6 +154,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onPublish(int percent) {
+        //Log.w("haha",percent+"");
         if (isPause)
             return;
         playProgress.setProgress(percent*MusicUtil.sMusicList.get(mPlayService.getPlayingPosition()).getDuration()/100);
@@ -165,15 +167,18 @@ public class MainActivity extends BaseActivity {
                 public void OnClick() {
                     if (mPlayService.isPlaying()) {
                         mPlayService.pause();
-                        EventBus.getDefault().post(new ClickEvent(true));
+                        //EventBus.getDefault().post(new ClickEvent(true));
                     } else {
                         mPlayService.resume();
-                        EventBus.getDefault().post(new ClickEvent(false));
+                        //EventBus.getDefault().post(new ClickEvent(false));
                     }
                 }
 
                 @Override
                 public void onLongClick() {
+                    isPause = true;
+                    ivPlay.setImageResource(android.R.drawable.ic_media_pause);
+                    //Toast.makeText(App.sContext,"关闭浮窗",Toast.LENGTH_LONG).show();
                     mPlayService.pause();
                     unBindFxService();
                     //stopService(new Intent(App.sContext,FxService.class));
@@ -181,9 +186,9 @@ public class MainActivity extends BaseActivity {
                 }
             });
 
-            Intent intent = new Intent(App.sContext, MusicActivity.class);
+            /*Intent intent = new Intent(App.sContext, MusicActivity.class);
             intent.putExtra("position", mPosition);
-            startActivity(intent);
+            startActivity(intent);*/
         }
 
     }
@@ -260,7 +265,7 @@ public class MainActivity extends BaseActivity {
 
             } else {
                 // User refused to grant permission.
-                Toast.makeText(this,"请给予创建浮窗权限，否则app没法用啊",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"给予创建浮窗权限，否则app没法用啊",Toast.LENGTH_LONG).show();
             }
         }
 

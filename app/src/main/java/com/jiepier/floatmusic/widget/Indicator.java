@@ -10,11 +10,6 @@ import android.widget.LinearLayout;
 
 import com.jiepier.floatmusic.R;
 
-/**
- * 2015年8月15日 16:34:37
- * 博文地址：http://blog.csdn.net/u010156024
- * viewpager导航指示符
- */
 public class Indicator extends LinearLayout {
 	private Paint mPaint; // 画指示符的paint
 	

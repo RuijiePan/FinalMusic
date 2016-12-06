@@ -1,7 +1,10 @@
 package com.jiepier.floatmusic.service;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
@@ -19,10 +22,6 @@ import com.jiepier.floatmusic.R;
 import com.jiepier.floatmusic.bean.PercentEvent;
 import com.jiepier.floatmusic.widget.RotateView;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 /**
  * Created by panruijiesx on 2016/11/29.
  */
@@ -36,25 +35,13 @@ public class FxService extends Service {
     private FloatingViewClickListener mListener;
     private int pointDownX;
     private int pointDownY;
-    private long pointDownTime;
-    private long lastDownTime;
     private int pointUpX;
     private int pointUpY;
-    private boolean isFirst = true;
+    private long pointDownTime;
+    private long lastDownTime;
     public final static int DISTANCE = 15;
     public final static int LONG_CLICK_TIME = 1000;
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(PercentEvent event) {
-        mRotateView.rotate(event.getPercent());
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        createFloatView();
-        EventBus.getDefault().register(this);
-    }
+    private ProgressRecevier mReceiver;
 
     private void createFloatView() {
         mWparams = new WindowManager.LayoutParams();
@@ -118,10 +105,15 @@ public class FxService extends Service {
                         }
                         break;
                 }
-                return true;  //此处必须返回false，否则OnClickListener获取不到监听
+                return true;
             }
         });
 
+        mReceiver = new ProgressRecevier();
+        IntentFilter intentFilter = new IntentFilter();
+
+        intentFilter.addAction("com.jiepier.floatmusic.RECEVER");
+        registerReceiver(mReceiver, intentFilter);
     }
 
     @Nullable
@@ -140,10 +132,11 @@ public class FxService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
         if (mFloatLayout != null){
             mWindowManager.removeView(mFloatLayout);
         }
+        if (mReceiver!=null)
+        unregisterReceiver(mReceiver);
     }
 
 
@@ -181,5 +174,20 @@ public class FxService extends Service {
         void OnClick();
 
         void onLongClick();
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        createFloatView();
+    }
+
+    public class ProgressRecevier extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int progress = intent.getIntExtra("progress",0);
+            mRotateView.rotate(progress);
+        }
     }
 }

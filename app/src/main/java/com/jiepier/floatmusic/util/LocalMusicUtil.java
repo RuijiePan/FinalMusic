@@ -42,7 +42,7 @@ public class LocalMusicUtil {
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,null,
                 MediaStore.Audio.Media.DATA + " like ?",
                 new String[]{dirName + "%"},
-                MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
+                "date_modified"+" desc");
 
         if (cursor == null)
             return musicList;
